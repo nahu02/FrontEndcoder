@@ -1,7 +1,11 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
 
-from api_helper import get_encoders, get_encoder_description, encode_message
+from api_helper import (
+    get_encoders_async,
+    get_encoder_description_async,
+    encode_message_async,
+)
 
 st.set_page_config(page_title="FrontEndcoders", page_icon="🚀", layout="wide")
 
@@ -45,7 +49,7 @@ with col1:
     # Intro text
     st.markdown(
         """
-        Welcome to **FrontEndcoders**, a simple frontend for my thesis project. 
+        Welcome to **FrontEndcoders**, a simple web app frontend for my thesis project. 
         This application uses [RestfulEncoders](https://github.com/nahu02/RestfulEncoders),
         and showcases the power and flexibility of my custom-built
         [EncoderHubCore](https://github.com/nahu02/EncoderHubCore) library.
@@ -75,32 +79,41 @@ with col2:
 
 
 st.markdown("## Encoders")
+col1, col2 = st.columns([1, 2])
 
-encoders = get_encoders()
-selected_encoder = st.selectbox("Select an encoder", encoders)
+with col1:
+    encoders = get_encoders_async()
+    selected_encoder = st.selectbox("Select an encoder", encoders, key="encoder_select")
 
-if selected_encoder:
-    st.markdown(f"## Using {selected_encoder}")
+    if selected_encoder:
+        # Message encoding
+        st.markdown("### Encode a Message")
+        message = st.text_area("Enter your message", key="message_input")
+        encode_button = st.button(
+            "Encode", key="encode_button", use_container_width=True
+        )
 
-    # Display encoder description
-    description = get_encoder_description(selected_encoder)
-    if description:
-        st.markdown("### Encoder Description")
-        if isinstance(description, str):
-            st.markdown(description)
-        else:
-            st.json(description)
+with col2:
+    if selected_encoder:
+        st.markdown(f"### {selected_encoder}")
 
-    # Message encoding
-    st.markdown("### Encode a Message")
-    message = st.text_area("Enter your message")
-    if st.button("Encode"):
-        if message:
-            encoded_message = encode_message(selected_encoder, message)
-            if encoded_message:
-                st.success("Message encoded successfully!")
-                st.code(encoded_message)
-        else:
-            st.warning("Please enter a message to encode.")
-else:
-    st.info("Please select an encoder to get started.")
+        # Display encoder description
+        description = get_encoder_description_async(selected_encoder)
+        if description:
+            if isinstance(description, str):
+                st.markdown(description)
+            else:
+                st.json(description)
+
+        # Encode message and display result
+        if encode_button:
+            if message:
+                with st.spinner("Encoding message..."):
+                    encoded_message = encode_message_async(selected_encoder, message)
+                if encoded_message:
+                    st.success("Message encoded successfully!")
+                    st.code(encoded_message, language="plaintext")
+            else:
+                st.warning("Please enter a message to encode.")
+    else:
+        st.info("Please select an encoder to get started.")
