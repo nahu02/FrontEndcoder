@@ -1,6 +1,7 @@
-import requests
 import streamlit as st
 from streamlit_lottie import st_lottie
+
+from api_helper import get_encoders, get_encoder_description, encode_message
 
 st.set_page_config(page_title="FrontEndcoders", page_icon="🚀", layout="wide")
 
@@ -72,11 +73,34 @@ with col2:
         loop=True,
     )
 
-# Placeholder JSON data
-st.write("## Placeholder API Response")
 
-placeholder_rest_json = requests.get(
-    "https://jsonplaceholder.typicode.com/todos/1"
-).json()
+st.markdown("## Encoders")
 
-st.json(placeholder_rest_json)
+encoders = get_encoders()
+selected_encoder = st.selectbox("Select an encoder", encoders)
+
+if selected_encoder:
+    st.markdown(f"## Using {selected_encoder}")
+
+    # Display encoder description
+    description = get_encoder_description(selected_encoder)
+    if description:
+        st.markdown("### Encoder Description")
+        if isinstance(description, str):
+            st.markdown(description)
+        else:
+            st.json(description)
+
+    # Message encoding
+    st.markdown("### Encode a Message")
+    message = st.text_area("Enter your message")
+    if st.button("Encode"):
+        if message:
+            encoded_message = encode_message(selected_encoder, message)
+            if encoded_message:
+                st.success("Message encoded successfully!")
+                st.code(encoded_message)
+        else:
+            st.warning("Please enter a message to encode.")
+else:
+    st.info("Please select an encoder to get started.")
