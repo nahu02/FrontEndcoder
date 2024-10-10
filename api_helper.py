@@ -1,8 +1,13 @@
+from os import getenv
+
 import requests
 import streamlit as st
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # API base URL
-BASE_URL = "http://localhost:5140"
+BASE_URL = getenv("API_URL")
 
 
 def get_encoders():
