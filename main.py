@@ -2,9 +2,9 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 
 from api_helper import (
-    get_encoders_async,
-    get_encoder_description_async,
-    encode_message_async,
+    get_encoders,
+    get_encoder_description,
+    encode_message,
 )
 
 st.set_page_config(page_title="FrontEndcoders", page_icon="🚀", layout="wide")
@@ -82,7 +82,7 @@ st.markdown("## Encoders")
 col1, col2 = st.columns([1, 2])
 
 with col1:
-    encoders = get_encoders_async()
+    encoders = get_encoders()
     selected_encoder = st.selectbox("Select an encoder", encoders, key="encoder_select")
 
     if selected_encoder:
@@ -98,7 +98,7 @@ with col2:
         st.markdown(f"### {selected_encoder}")
 
         # Display encoder description
-        description = get_encoder_description_async(selected_encoder)
+        description = get_encoder_description(selected_encoder)
         if description:
             if isinstance(description, str):
                 st.markdown(description)
@@ -109,7 +109,7 @@ with col2:
         if encode_button:
             if message:
                 with st.spinner("Encoding message..."):
-                    encoded_message = encode_message_async(selected_encoder, message)
+                    encoded_message = encode_message(selected_encoder, message)
                 if encoded_message:
                     st.success("Message encoded successfully!")
                     st.code(encoded_message, language="plaintext")
@@ -117,3 +117,29 @@ with col2:
                 st.warning("Please enter a message to encode.")
     else:
         st.info("Please select an encoder to get started.")
+
+st.markdown("---")
+
+st.markdown("### Encoding History")
+if "encoding_history" not in st.session_state:
+    st.session_state.encoding_history = []
+
+if encode_button and message and encoded_message:
+    st.session_state.encoding_history.append(
+        {"encoder": selected_encoder, "original": message, "encoded": encoded_message}
+    )
+
+if st.session_state.encoding_history:
+    for idx, item in enumerate(reversed(st.session_state.encoding_history), 1):
+        with st.expander(f"Encoding {idx}: {item['encoder']}"):
+            st.markdown("**Original message:**")
+            st.code(item["original"], language="plaintext")
+            st.markdown("**Encoded message:**")
+            st.code(item["encoded"], language="plaintext")
+else:
+    st.info("No encodings yet. Try encoding a message!")
+
+# Add a clear history button
+if st.button("Clear History", key="clear_history"):
+    st.session_state.encoding_history = []
+    st.experimental_rerun()
