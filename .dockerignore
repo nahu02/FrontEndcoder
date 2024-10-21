@@ -1,0 +1,20 @@
+# From https://github.com/GoogleCloudPlatform/getting-started-python/blob/main/optional-kubernetes-engine/.dockerignore
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+.vscode
