@@ -9,6 +9,16 @@ from api_helper import (
 
 st.set_page_config(page_title="FrontEndcoders", page_icon="🚀", layout="wide")
 
+REMOVE_HEADER = """
+<style>
+    .stAppHeader {
+        display: none;
+    }   
+</style>
+"""
+
+st.markdown(REMOVE_HEADER, unsafe_allow_html=True)
+
 st.write(
     """
     # 🚀 FrontEndcoders
